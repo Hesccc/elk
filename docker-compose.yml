@@ -1,0 +1,110 @@
+version: '2.2'
+services:
+  es01:
+    image: elasticsearch:7.5.2
+    container_name: es01
+    restart: always
+    environment:
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /home/elastic/elk/elasticsearch/es-node01/data:/usr/share/elasticsearch/data
+      - /home/elastic/elk/elasticsearch/es-node01/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/elastic/elk/elasticsearch/es-node01/logs:/usr/share/elasticsearch/logs
+      - /home/elastic/elk/elasticsearch/es-node01/plugins:/usr/share/elasticsearch/plugins
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+      
+  es02:
+    image: elasticsearch:7.5.2
+    container_name: es02
+    restart: always
+    environment:
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /home/elastic/elk/elasticsearch/es-node02/data:/usr/share/elasticsearch/data
+      - /home/elastic/elk/elasticsearch/es-node02/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/elastic/elk/elasticsearch/es-node02/logs:/usr/share/elasticsearch/logs
+      - /home/elastic/elk/elasticsearch/es-node02/plugins:/usr/share/elasticsearch/plugins
+    networks:
+      - elastic
+
+  es03:
+    image: elasticsearch:7.5.2
+    container_name: es03
+    restart: always
+    environment:
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /home/elastic/elk/elasticsearch/es-node03/data:/usr/share/elasticsearch/data
+      - /home/elastic/elk/elasticsearch/es-node03/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/elastic/elk/elasticsearch/es-node03/logs:/usr/share/elasticsearch/logs
+      - /home/elastic/elk/elasticsearch/es-node03/plugins:/usr/share/elasticsearch/plugins
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:7.5.2
+    container_name: kibana
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /home/elastic/elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    privileged: true
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+
+  cerebro:
+    image: lmenezes/cerebro:latest
+    container_name: cerebro
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /etc/localtime:/etc/localtime
+    ports:
+      - 9100:9000
+    networks:
+      - elastic
+
+  console:
+    image: dockerproxy.com/infinilabs/console:latest
+    container_name: console
+    restart: always
+    volumes:
+      - /home/elastic/elk/console/data:/data
+      - /home/elastic/elk/console/log:/log
+    ports:
+      - 9000:9000
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge

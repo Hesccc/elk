@@ -1,0 +1,15 @@
+cluster.name: es-cluster # 集群名称，集群名称相同的节点自动组成一个集群
+node.name: es03 # 节点名称
+network.host: 0.0.0.0 # 同时设置bind_host和publish_host
+http.port: 9200  # rest客户端连接端口
+transport.tcp.port: 9300  # 集群中节点互相通信端口
+node.master: true # 设置master角色
+node.data: true # 设置data角色
+node.ingest: true # 设置ingest角色 在索引之前，对文档进行预处理，支持pipeline管道，相当于过滤器
+bootstrap.memory_lock: false
+node.max_local_storage_nodes: 1
+
+# 跨域配置
+http.cors.enabled: true
+# 跨域配置
+http.cors.allow-origin: "*"
